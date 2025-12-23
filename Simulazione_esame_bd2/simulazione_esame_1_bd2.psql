@@ -1,0 +1,140 @@
+-- 1.Elencare tutti i progetti la cui fine è successiva al 2023-12-31
+
+SELECT
+	p.nome
+FROM
+	progetto AS p
+WHERE
+	p.fine > '2023-12-31';
+
+
+-- 2.Contare il numero totale di persone per ciascuna posizione
+-- (Ricercatore, Professore Associato, Professore Ordinario).
+
+
+SELECT
+	per.posizione, COUNT(*) AS persone
+FROM
+	persona AS per
+GROUP BY
+	posizione;
+
+
+-- 3.Restituire gli id e i nomi delle persone che hanno almeno
+-- un giorno di assenza per "Malattia".
+
+SELECT DISTINCT
+	per.nome, per.id
+FROM
+	persona AS per, assenza AS ass
+WHERE 
+	per.id = ass.persona
+	AND ass.tipo = 'Malattia';
+
+
+-- 4.Per ogni tipo di assenza, restituire il numero complessivo
+-- di occorrenze.
+
+SELECT
+	ass.tipo, COUNT(*) AS numero_assenze
+FROM 
+	assenza AS ass
+GROUP BY 
+	ass.tipo;
+
+
+-- 5.Calcolare lo stipendio massimo tra tutti i "Professori Ordinari"
+
+SELECT
+	MAX(per.stipendio) AS stipendio_massimo
+FROM
+	persona AS per
+WHERE 
+	per.posizione = 'Professore Ordinario';
+
+
+-- 6.Quali sono le attività e le ore spese dalla persona con id 1
+-- nelle attività del progetto con id 4, ordinate in ordine
+-- decrescente. Per ogni attività, restituire l’id, il tipo e il
+-- numero di ore.
+
+SELECT
+	ap.id, ap.tipo, ap.oredurata
+FROM
+	attivitaprogetto AS ap
+WHERE
+	ap.persona = 1
+	AND ap.progetto = 4
+ORDER BY
+	ap.oredurata DESC;
+
+
+-- 7.Quanti sono i giorni di assenza per tipo e per persona.
+-- Per ogni persona e tipo di assenza, restituire nome, cognome,
+-- tipo assenza e giorni totali
+
+SELECT
+	p.nome,
+	p.cognome,
+	ass.tipo,
+	COUNT(*) AS giorni_totali
+FROM
+	persona AS p,
+	assenza AS ass
+WHERE
+	p.id = ass.persona
+GROUP BY
+	p.nome,
+	p.cognome,
+	ass.tipo;
+
+-- 8. Restituire tutti i “Professori Ordinari” che hanno lo
+-- stipendio massimo. Per ognuno, restituire id, nome e
+-- cognome
+
+SELECT
+	id, nome, cognome
+FROM
+	persona AS p
+WHERE
+	posizione = 'Professore Ordinario'
+	AND
+		stipendio = (
+			SELECT
+				MAX(stipendio)
+			FROM
+				persona
+			WHERE
+				posizione = 'Professore Ordinario'
+				);
+
+-- 9. Restituire la somma totale delle ore relative alle attività
+-- progettuali svolte dalla persona con id = 3 e con durata
+-- minore o uguale a 3 ore
+
+SELECT
+	SUM(oredurata) AS somma_ore
+FROM
+	attivitaprogetto AS ap
+WHERE
+	ap.persona = 3
+	AND
+		oredurata <= 3;
+
+-- 10. Restituire gli id e i nomi delle persone che non hanno
+-- mai avuto assenze di tipo "Chiusura Universitaria"
+
+SELECT
+	p.id,
+	p.nome
+FROM
+	persona AS p
+WHERE
+	p.id NOT IN(
+		SELECT
+			persona
+		FROM
+			assenza
+		WHERE 
+			tipo = 'Chiusura Universitaria'
+		);
